@@ -193,7 +193,7 @@ public class Main extends Application {
             String password = passwordField.getText();
             if (!website.isEmpty() && !password.isEmpty()) {
                 String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
-                PasswordEntry entry = new PasswordEntry(website, password, date);
+                PasswordEntry entry = new PasswordEntry(website, password, date, )
                 entries.add(entry);
                 tableView.getItems().add(entry);
                 saveEntries();
@@ -234,7 +234,7 @@ public class Main extends Application {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length == 4 && parts[0].equals(loggedInUser)) {
-                    entries.add(new PasswordEntry(parts[1], parts[2], parts[3]));
+                    entries.add(new PasswordEntry(parts[1], parts[2], parts[3], ));
                 }
             }
         } catch (IOException e) {
