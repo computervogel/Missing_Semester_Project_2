@@ -4,11 +4,17 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -182,6 +188,11 @@ public class Main extends Application {
 
         TableColumn<PasswordEntry, String> dateColumn = new TableColumn<>("Date/Time");
         dateColumn.setCellValueFactory(cellData -> cellData.getValue().dateProperty());
+
+        TableColumn<PasswordEntry, String> pictureColumn = new TableColumn<>("Gedächtnisbild");
+        //pictureColumn.setCellFactory(cellData -> {
+        //    return cellData.setGraphic(new ImageView(new Image("generated_image.png")));
+        //});
 
         //noinspection unchecked
         tableView.getColumns().addAll(websiteColumn, passwordColumn, dateColumn);

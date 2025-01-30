@@ -7,11 +7,13 @@ public class PasswordEntry {
     private final StringProperty website;
     private final StringProperty password;
     private final StringProperty date;
+    private final StringProperty picturePath;
 
-    public PasswordEntry(String website, String password, String date) {
+    public PasswordEntry(String website, String password, String date, StringProperty picturePath) {
         this.website = new SimpleStringProperty(website);
         this.password = new SimpleStringProperty(password);
         this.date = new SimpleStringProperty(date);
+        this.picturePath = picturePath;
     }
 
     public StringProperty websiteProperty() {
