@@ -10,9 +10,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -21,7 +18,6 @@ import java.util.List;
 public class Main extends Application {
     private static final String ACCOUNTS_FILE = "accounts.txt";
     private static final String PASSWORDS_FILE = "passwords.txt";
-    private static final String RASPBERRY_PI_URL = "http://192.168.178.193:5000";
     private final List<main.PasswordEntry> entries = new ArrayList<>();
     private String loggedInUser = null;
 
@@ -76,11 +72,7 @@ public class Main extends Application {
         Button loginButton = new Button("Login with existing account");
         loginButton.setOnAction(_ -> {
             if (login(usernameField.getText(), passwordField.getText())) {
-                if (authenticateWithRaspberryPi(usernameField.getText())) {
-                    showPasswordManager(stage);
-                } else {
-                    messageLabel.setText("Access denied: Authentication failed.");
-                }
+                showPasswordManager(stage);
             } else {
                 messageLabel.setText("Login failed. Username or Password incorrect or missing.");
             }
@@ -124,15 +116,7 @@ public class Main extends Application {
         Button createAccountButton = new Button("Register new user");
         createAccountButton.setOnAction(_ -> {
             if (createAccount(usernameField.getText(), passwordField.getText())) {
-                if(registerWithRaspberryPi(usernameField.getText())) {
-                    if (trainModelOnRaspberryPi()) {
-                        messageLabel.setText("Account successfully created and model training completed!");
-                    } else {
-                        messageLabel.setText("Account created, but error in model training.");
-                    }
-                } else {
-                    messageLabel.setText("Error during Raspberry Pi registration.");
-                }
+                messageLabel.setText("Account successfully created!");
             } else {
                 messageLabel.setText("Error: User name or password invalid or already taken.");
             }
@@ -243,53 +227,6 @@ public class Main extends Application {
         stage.show();
     }
 
-    private boolean authenticateWithRaspberryPi(String username) {
-        try {
-            URI uri = URI.create(RASPBERRY_PI_URL + "/authenticate");
-            return connect(username, uri);
-        } catch (IOException e) {
-            System.out.println("Error during communication with the Raspberry Pi: " + e.getMessage());
-        }
-        return false;
-    }
-
-    private boolean registerWithRaspberryPi(String username) {
-        try {
-            URI uri = URI.create(RASPBERRY_PI_URL + "/register");
-            return connect(username, uri);
-        } catch (IOException e) {
-            System.out.println("Error during communication with the Raspberry Pi: " + e.getMessage());
-        }
-        return false;
-    }
-
-    private boolean trainModelOnRaspberryPi() {
-        try {
-            URI uri = URI.create(RASPBERRY_PI_URL + "/train");
-            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-            connection.setRequestMethod("POST");
-            int responseCode = connection.getResponseCode();
-            return responseCode == 200;
-        } catch (IOException e) {
-            System.out.println("Error when starting the model training on the Raspberry Pi: " + e.getMessage());
-        }
-        return false;
-    }
-
-    private boolean connect(String username, URI uri) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-        connection.setRequestMethod("POST");
-        connection.setDoOutput(true);
-
-        String payload = "username=" + username;
-        try (OutputStream os = connection.getOutputStream()) {
-            os.write(payload.getBytes(StandardCharsets.UTF_8));
-        }
-
-        int responseCode = connection.getResponseCode();
-        return responseCode == 200;
-    }
-
     private void loadEntries() {
         entries.clear();
         try (BufferedReader reader = new BufferedReader(new FileReader(PASSWORDS_FILE))) {
@@ -318,17 +255,10 @@ public class Main extends Application {
 
     private boolean clearAllData() {
         try {
-            URI uri = URI.create(RASPBERRY_PI_URL + "/clear_all_data");
-            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
-            connection.setRequestMethod("POST");
-            int responseCode = connection.getResponseCode();
-
-            if (responseCode == 200) {
-                deleteLocalFile("accounts.txt");
-                deleteLocalFile("passwords.txt");
-                return true;
-            }
-        } catch (IOException e) {
+            deleteLocalFile("accounts.txt");
+            deleteLocalFile("passwords.txt");
+            return true;
+        } catch (Exception e) {
             System.out.println("Error when deleting all data: " + e.getMessage());
         }
         return false;
