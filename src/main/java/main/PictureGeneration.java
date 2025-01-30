@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import okhttp3.*;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -30,11 +31,23 @@ public class PictureGeneration {
 
         String imageUrl = callLocalAIAndReturnImage(generatedPrompt, negativePrompt);
 
+        // If the returned image is null, use a local fallback image
+        if (imageUrl == null) {
+            System.out.println("LocalAI image generation failed. Using fallback image.");
+            File fallbackFile = new File("default.jpg");
+
+            if (fallbackFile.exists()) {
+
+                imageUrl = fallbackFile.toURI().toString();
+            } else {
+                System.out.println("Fallback image file not found. Cannot load fallback image.");
+            }
+        }
         if (imageUrl != null) {
             System.out.println("Image URL: " + imageUrl);
             saveImage(imageUrl, "generated_image.png");
         } else {
-            System.out.println("Failed to generate image.");
+            System.out.println("Failed to generate or fetch fallback image.");
         }
     }
 
