@@ -85,8 +85,16 @@ public class ImageGenerator {
         }
     }
 
+    private OkHttpClient createHttpClient() {
+        return new OkHttpClient.Builder()
+                .connectTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .readTimeout(90, java.util.concurrent.TimeUnit.SECONDS)    // Read timeout higher as image generation can take some time
+                .writeTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .build();
+    }
+
     private String callLLMForPrompt(String passphrase) {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = createHttpClient();
         Gson gson = new Gson();
 
         JsonObject message = new JsonObject();
@@ -129,7 +137,7 @@ public class ImageGenerator {
     }
 
     private String callLocalAIAndReturnImage(String prompt) {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = createHttpClient();
         Gson gson = new Gson();
 
         JsonObject requestBodyJson = new JsonObject();
