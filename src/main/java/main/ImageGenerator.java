@@ -24,7 +24,7 @@ public class ImageGenerator {
         this.llmEndpoint = "http://localhost:8080/v1/chat/completions";
         this.imageEndpoint = "http://localhost:8080/v1/images/generations";
         this.fallbackImagePath = "default.jpeg";
-        this.llmPromptTemplate = "Generate a detailed image description to visualize the passphrase: \"{passphrase}\".";
+        this.llmPromptTemplate = "Generate a short non detailed image description to visualize the passphrase: \"{passphrase}\".";
         this.negativeImagePrompt = "Text";
         this.defaultImagePath = "images/";
 
@@ -78,7 +78,7 @@ public class ImageGenerator {
 
         if (imageUrl != null) {
             saveImage(imageUrl, outputFilename);
-            return new File(defaultImagePath, outputFilename).getAbsolutePath();
+            return new File(defaultImagePath, outputFilename).getPath();
         } else {
             System.out.println("Failed to generate or fetch fallback image.");
             return null;

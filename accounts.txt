@@ -1,2 +1,1 @@
-Max,1234
-test,test
+paul,passw

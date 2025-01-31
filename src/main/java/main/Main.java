@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class Main extends Application {
     private static final String ACCOUNTS_FILE = "accounts.txt";
@@ -151,7 +153,7 @@ public class Main extends Application {
     private boolean createAccount(String username, String password) {
         if (username.isEmpty() || password.isEmpty()) return false;
 
-        if(isUsernameTaken(username)){
+        if (isUsernameTaken(username)) {
             System.out.println("Username is already taken.");
             return false;
         }
@@ -167,6 +169,9 @@ public class Main extends Application {
     }
 
     private void showPasswordManager(Stage stage) {
+
+        ImageGenerator imageGenerator = new ImageGenerator();
+
         VBox mainLayout = new VBox(10);
         mainLayout.setPadding(new Insets(20));
 
@@ -190,13 +195,11 @@ public class Main extends Application {
         TableColumn<PasswordEntry, String> dateColumn = new TableColumn<>("Date/Time");
         dateColumn.setCellValueFactory(cellData -> cellData.getValue().dateProperty());
 
-        TableColumn<PasswordEntry, String> pictureColumn = new TableColumn<>("Gedächtnisbild");
-        //pictureColumn.setCellFactory(cellData -> {
-        //    return cellData.setGraphic(new ImageView(new Image("generated_image.png")));
-        //});
+        TableColumn<PasswordEntry, ImageView> pictureColumn = new TableColumn<>("Gedächtnisbild");
+        pictureColumn.setCellValueFactory(new PropertyValueFactory<>("imageView"));
 
         //noinspection unchecked
-        tableView.getColumns().addAll(websiteColumn, passwordColumn, dateColumn);
+        tableView.getColumns().addAll(websiteColumn, passwordColumn, dateColumn, pictureColumn);
         tableView.getItems().addAll(entries);
         tableView.setEditable(true);
 
@@ -205,7 +208,19 @@ public class Main extends Application {
             String password = passwordField.getText();
             if (!website.isEmpty() && !password.isEmpty()) {
                 String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
-                PasswordEntry entry = new PasswordEntry(website, password, date, )
+                // generate image
+                String filename = loggedInUser + "_" + website + ".png";
+                String imagePath = imageGenerator.generateImage(password, filename);
+
+                if (imagePath == null) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Could not generate image", ButtonType.OK);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Image Generation Failed");
+                    alert.showAndWait();
+                    imagePath = "None";
+                }
+
+                PasswordEntry entry = new PasswordEntry(website, password, date, imagePath);
                 entries.add(entry);
                 tableView.getItems().add(entry);
                 saveEntries();
@@ -245,8 +260,9 @@ public class Main extends Application {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length == 4 && parts[0].equals(loggedInUser)) {
-                    entries.add(new PasswordEntry(parts[1], parts[2], parts[3], ));
+                if (parts.length == 5 && parts[0].equals(loggedInUser)) {
+                    // website, password, date, image
+                    entries.add(new PasswordEntry(parts[1], parts[2], parts[3], parts[4]));
                 }
             }
         } catch (IOException e) {
