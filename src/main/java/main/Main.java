@@ -193,7 +193,7 @@ public class Main extends Application {
         dateColumn.setCellValueFactory(cellData -> cellData.getValue().dateProperty());
 
         TableColumn<PasswordEntry, ImageView> pictureColumn = new TableColumn<>("Gedächtnisbild");
-        pictureColumn.setCellValueFactory(new PropertyValueFactory<>("imageView"));
+        pictureColumn.setCellValueFactory(new PropertyValueFactory<>("imageView")); // https://stackoverflow.com/questions/24933164/javafx-adding-image-in-tableview
 
         //noinspection unchecked
         tableView.getColumns().addAll(websiteColumn, passwordColumn, dateColumn, pictureColumn);
@@ -268,7 +268,7 @@ public class Main extends Application {
     }
 
     private void saveEntries() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PASSWORDS_FILE))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PASSWORDS_FILE, true))) {
             for (PasswordEntry entry : entries) {
                 writer.write(loggedInUser + "," + entry.toCsvString());
                 writer.newLine();
