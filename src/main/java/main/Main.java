@@ -1,7 +1,6 @@
 package main;
 
 import javafx.application.Application;
-import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -10,13 +9,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.awt.*;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -209,7 +206,7 @@ public class Main extends Application {
             if (!website.isEmpty() && !password.isEmpty()) {
                 String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
                 // generate image
-                String filename = loggedInUser + "_" + website + ".png";
+                String filename = loggedInUser + "_" + website + LocalDateTime.now().format(DateTimeFormatter.ofPattern("_yyyyMMdd_HHmmss")) +".png";
                 String imagePath = imageGenerator.generateImage(password, filename);
 
                 if (imagePath == null) {
@@ -223,7 +220,7 @@ public class Main extends Application {
                 PasswordEntry entry = new PasswordEntry(website, password, date, imagePath);
                 entries.add(entry);
                 tableView.getItems().add(entry);
-                saveEntries();
+                saveEntry(entry);
                 websiteField.clear();
                 passwordField.clear();
             }
@@ -276,6 +273,15 @@ public class Main extends Application {
                 writer.write(loggedInUser + "," + entry.toCsvString());
                 writer.newLine();
             }
+        } catch (IOException e) {
+            System.out.println("Error when saving the entries.");
+        }
+    }
+
+    private void saveEntry(PasswordEntry entry) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PASSWORDS_FILE))) {
+                writer.write(loggedInUser + "," + entry.toCsvString());
+                writer.newLine();
         } catch (IOException e) {
             System.out.println("Error when saving the entries.");
         }
