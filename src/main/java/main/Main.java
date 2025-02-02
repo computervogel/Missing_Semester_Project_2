@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Objects;
 
 public class Main extends Application {
     private static final String ACCOUNTS_FILE = "accounts.txt";
@@ -232,7 +232,7 @@ public class Main extends Application {
             if (selectedEntry != null) {
                 entries.remove(selectedEntry);
                 tableView.getItems().remove(selectedEntry);
-                saveEntries();
+                deleteEntry(selectedEntry);
             }
         });
 
@@ -267,21 +267,33 @@ public class Main extends Application {
         }
     }
 
-    private void saveEntries() {
+    private void saveEntry(PasswordEntry entry) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(PASSWORDS_FILE, true))) {
-            for (PasswordEntry entry : entries) {
                 writer.write(loggedInUser + "," + entry.toCsvString());
                 writer.newLine();
-            }
         } catch (IOException e) {
             System.out.println("Error when saving the entries.");
         }
     }
 
-    private void saveEntry(PasswordEntry entry) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PASSWORDS_FILE))) {
-                writer.write(loggedInUser + "," + entry.toCsvString());
-                writer.newLine();
+    private void deleteEntry(PasswordEntry entry) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(PASSWORDS_FILE));
+            String curLine = reader.readLine();
+            BufferedWriter writer = new BufferedWriter(new FileWriter(PASSWORDS_FILE));
+            while (curLine != null) {
+                String[] parts = curLine.split(",");
+                if (parts.length != 5 || !parts[0].equals(loggedInUser) || !parts[1].equals(entry.getWebsite()) || !parts[2].equals(entry.getPassword()) || !parts[3].equals(entry.getDate()) || !parts[4].equals(entry.getImagePath())) {
+                    writer.write(curLine);
+                    writer.newLine();
+                } else {
+                    deleteLocalFile(entry.getImagePath());
+                }
+                curLine = reader.readLine();
+            }
+            reader.close();
+            writer.close();
+
         } catch (IOException e) {
             System.out.println("Error when saving the entries.");
         }
@@ -291,6 +303,11 @@ public class Main extends Application {
         try {
             deleteLocalFile("accounts.txt");
             deleteLocalFile("passwords.txt");
+            for(File file : Objects.requireNonNull(new File("images").listFiles())) {
+                if (!file.isDirectory())
+                    file.delete();
+            }
+            System.out.println("All images have been deleted.");
             return true;
         } catch (Exception e) {
             System.out.println("Error when deleting all data: " + e.getMessage());
