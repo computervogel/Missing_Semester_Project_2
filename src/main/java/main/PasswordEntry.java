@@ -28,8 +28,8 @@ public class PasswordEntry {
             if (file.exists()) {
                 iv = new ImageView(new Image(file.toURI().toString()));
                 // optional: set sizing constraints
-                iv.setFitWidth(100);
-                iv.setFitHeight(100);
+                iv.setFitWidth(200);
+                iv.setFitHeight(200);
                 iv.setPreserveRatio(true);
             }
         }
