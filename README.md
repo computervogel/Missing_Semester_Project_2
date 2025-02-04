@@ -106,7 +106,7 @@ There is already a user **admin** with password **admin** that has a few example
 
 Here a demo video:
 
-
+https://github.com/user-attachments/assets/f02572b0-b68e-4a9d-a92f-899a2fb445b7
 
 ---
 
