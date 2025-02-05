@@ -88,10 +88,6 @@ When using the CPU version and depending on the hardware, the API calls might ru
 The Timeout can be increased in the ImageGenerator class for both the LLM call and Image Generator call.
 
 ---
-### Build instructions
-
-
-
 ### Usage
 
 1.  Start Java Application and LocalAI Docker Container on localhost port 8080 for Image Generation.
